@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FruitMover : MonoBehaviour
+public class CubeClicker : MonoBehaviour
 {
     private Renderer fruitRenderer;
     public Camera mainCamera;  // Reference to the main camera
@@ -9,6 +9,9 @@ public class FruitMover : MonoBehaviour
     public float moveSpeed = 1f;    // Speed of left-right movement
     public float distanceFromCamera = 6f;  // Distance the fruit stays from the camera
     public float disappearThreshold = -2f;  // When to make the fruit disappear (below POV)
+
+    public GameObject fruitExplosionPrefab;  // Prefab buah yang meledak
+
 
     private Vector3 startPosition;
     private bool isJumping = false;
@@ -50,10 +53,14 @@ public class FruitMover : MonoBehaviour
     }
 
     void OnMouseDown()
-    {
-        // Ganti warna buah saat diklik
-        fruitRenderer.material.color = new Color(Random.value, Random.value, Random.value);
-    }
+{
+    // Instantiate efek ledakan dan simpan instance-nya
+    GameObject explosion = Instantiate(fruitExplosionPrefab, transform.position, transform.rotation);
+
+    Destroy(explosion, 1f);
+
+}
+
 
     void StartJumping()
     {
