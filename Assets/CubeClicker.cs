@@ -59,6 +59,8 @@ public class CubeClicker : MonoBehaviour
 
     Destroy(explosion, 1f);
 
+    RepositionFruit(); 
+
 }
 
 
