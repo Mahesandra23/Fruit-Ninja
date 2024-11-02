@@ -4,14 +4,14 @@ public class CubeClicker : MonoBehaviour
 {
     private Renderer fruitRenderer;
     public Camera mainCamera;  // Reference to the main camera
-    public float jumpHeight = 12f;   // How high the fruit jumps above the camera POV
+    public float jumpHeight = 14f;   // How high the fruit jumps above the camera POV
     public float jumpSpeed = 2f;    // Speed of the jump
     public float moveSpeed = 1f;    // Speed of left-right movement
     public float distanceFromCamera = 6f;  // Distance the fruit stays from the camera
-    public float disappearThreshold = -2f;  // When to make the fruit disappear (below POV)
+    public float disappearThreshold = -8f;  // When to make the fruit disappear (below POV)
+    public float spawnHeight = -14f;  // Height where the fruit initially spawns (you can adjust this)
 
     public GameObject fruitExplosionPrefab;  // Prefab buah yang meledak
-
 
     private Vector3 startPosition;
     private bool isJumping = false;
@@ -33,7 +33,6 @@ public class CubeClicker : MonoBehaviour
             mainCamera = Camera.main;
         }
 
-
         minX = -4;
         maxX = 5;
 
@@ -53,16 +52,14 @@ public class CubeClicker : MonoBehaviour
     }
 
     void OnMouseDown()
-{
-    // Instantiate efek ledakan dan simpan instance-nya
-    GameObject explosion = Instantiate(fruitExplosionPrefab, transform.position, transform.rotation);
+    {
+        // Instantiate efek ledakan dan simpan instance-nya
+        GameObject explosion = Instantiate(fruitExplosionPrefab, transform.position, transform.rotation);
 
-    Destroy(explosion, 1f);
+        Destroy(explosion, 1f);
 
-    RepositionFruit(); 
-
-}
-
+        RepositionFruit(); 
+    }
 
     void StartJumping()
     {
@@ -115,11 +112,7 @@ public class CubeClicker : MonoBehaviour
         // Pilih posisi X acak di dalam batas layar
         float randomX = Random.Range(minX, maxX);
 
-        // Mulai di bawah layar
-        Vector3 minScreenBounds = mainCamera.ViewportToWorldPoint(new Vector3(0, 0, distanceFromCamera));
-        float belowScreenY = minScreenBounds.y - fruitHeight;
-
-        // Tentukan posisi awal buah
-        startPosition = new Vector3(randomX, belowScreenY, distanceFromCamera);
+        // Gunakan `spawnHeight` yang dapat diatur
+        startPosition = new Vector3(randomX, spawnHeight, distanceFromCamera);
     }
 }
