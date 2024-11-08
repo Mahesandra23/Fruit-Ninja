@@ -3,25 +3,22 @@ using UnityEngine;
 public class CubeClicker : MonoBehaviour
 {
     private Renderer fruitRenderer;
-    public Camera mainCamera;  // Reference to the main camera
-    public float jumpHeight = 14f;   // How high the fruit jumps above the camera POV
-    public float jumpSpeed = 2f;    // Speed of the jump
-    public float moveSpeed = 1f;    // Speed of left-right movement
-    public float distanceFromCamera = 6f;  // Distance the fruit stays from the camera
-    public float disappearThreshold = -8f;  // When to make the fruit disappear (below POV)
-    public float spawnHeight = -14f;  // Height where the fruit initially spawns (you can adjust this)
+    public Camera mainCamera;
+    public float jumpHeight = 30f;
+    public float jumpSpeed = 2f;
+    public float moveSpeed = 1f;
+    public float distanceFromCamera = 6f;
+    public float disappearThreshold = -8f;
+    public float spawnHeight = -30f;
 
-    public GameObject fruitExplosionPrefab;  // Prefab buah yang meledak
+    public GameObject fruitExplosionPrefab;
 
     private Vector3 startPosition;
     private bool isJumping = false;
-    private float jumpTimer = 0f;  // Timer for controlling vertical movement
-    private float moveTimer = 0f;  // Timer for controlling horizontal movement
-    private float fruitWidth;       // Fruit width
-    private float fruitHeight;      // Fruit height
-    private int jumpDirection;     // 1 for right, -1 for left
-
-    // Batas layar untuk pergerakan buah
+    private float jumpTimer = 0f;
+    private float moveTimer = 0f;
+    private float fruitWidth;
+    private int jumpDirection;
     private float minX, maxX;
 
     void Start()
@@ -36,83 +33,69 @@ public class CubeClicker : MonoBehaviour
         minX = -4;
         maxX = 5;
 
-        // Mulai di bawah kamera
         RepositionFruit();
-        transform.position = startPosition;
-
-        StartJumping();  // Mulai animasi melayang
+        StartJumping();
     }
 
     void Update()
     {
         if (isJumping)
         {
-            AnimateJump();  // Mengontrol animasi melayang
+            AnimateJump();
         }
     }
 
     void OnMouseDown()
     {
-        // Instantiate efek ledakan dan simpan instance-nya
+        // Instantiate explosion effect
         GameObject explosion = Instantiate(fruitExplosionPrefab, transform.position, transform.rotation);
 
-        Destroy(explosion, 1f);
+        // Destroy explosion effect after 2 seconds
+        Destroy(explosion, 2f);
 
-        RepositionFruit(); 
+        // Reposition the fruit at spawnHeight
+        RepositionFruit();
+        
+        // Restart jumping animation
+        StartJumping();
     }
 
     void StartJumping()
     {
-        jumpTimer = Random.Range(0f, 2f);  // Atur waktu acak untuk melayang
-        moveTimer = Random.Range(0f, 2f);  // Atur waktu acak untuk gerakan horizontal
         isJumping = true;
-
-        // Tentukan arah melayang berdasarkan posisi awal
-        if (startPosition.x < 0)  // Mulai di kiri
-        {
-            jumpDirection = 1;  // Gerak ke kanan
-        }
-        else  // Mulai di kanan
-        {
-            jumpDirection = -1;  // Gerak ke kiri
-        }
+        jumpDirection = startPosition.x < 0 ? 1 : -1;
     }
 
     void AnimateJump()
     {
-        // Timer untuk melayang
         jumpTimer += Time.deltaTime * jumpSpeed;
-        // Gerakan naik-turun dengan sine wave
         float jumpOffset = Mathf.Sin(jumpTimer) * jumpHeight;
 
-        // Timer untuk gerakan horizontal
         moveTimer += Time.deltaTime * moveSpeed;
-        // Gerakan kiri-kanan
         float moveOffset = Mathf.Sin(moveTimer) * (fruitWidth * 0.5f) * jumpDirection;
 
-        // Update posisi buah
-        float newX = Mathf.Clamp(startPosition.x + moveOffset, minX, maxX);  // Pastikan tidak keluar dari batas layar
+        float newX = Mathf.Clamp(startPosition.x + moveOffset, minX, maxX);
         transform.position = new Vector3(newX, startPosition.y + jumpOffset, distanceFromCamera);
 
-        // Jika buah jatuh di bawah threshold, atur ulang posisi
         if (jumpOffset < disappearThreshold)
         {
-            fruitRenderer.enabled = false;  // Sembunyikan buah
-            RepositionFruit();  // Posisikan ulang di bawah layar
-            jumpTimer = 0f;  // Reset timer
+            fruitRenderer.enabled = false;
+            RepositionFruit();
         }
         else
         {
-            fruitRenderer.enabled = true;  // Tampilkan buah saat naik
+            fruitRenderer.enabled = true;
         }
     }
 
     void RepositionFruit()
     {
-        // Pilih posisi X acak di dalam batas layar
         float randomX = Random.Range(minX, maxX);
-
-        // Gunakan `spawnHeight` yang dapat diatur
         startPosition = new Vector3(randomX, spawnHeight, distanceFromCamera);
+        transform.position = startPosition;
+
+        // Reset the timers to start jump from the beginning
+        jumpTimer = 0f;
+        moveTimer = 0f;
     }
 }
