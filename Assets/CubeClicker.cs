@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class CubeClicker : MonoBehaviour
 {
@@ -12,6 +13,9 @@ public class CubeClicker : MonoBehaviour
     public float spawnHeight = -30f;
 
     public GameObject fruitExplosionPrefab;
+    public int maxClicks = 2; // Menentukan jumlah klik untuk meledakkan buah
+    public float colorChangeDuration = 0.2f; // Durasi warna berubah menjadi merah
+    public float smallJumpHeight = 5f; // Tinggi lompatan kecil saat diklik
 
     private Vector3 startPosition;
     private bool isJumping = false;
@@ -20,6 +24,9 @@ public class CubeClicker : MonoBehaviour
     private float fruitWidth;
     private int jumpDirection;
     private float minX, maxX;
+
+    private int clickCount = 0; // Menyimpan jumlah klik saat ini
+    private Color originalColor; // Menyimpan warna asli buah
 
     void Start()
     {
@@ -32,6 +39,8 @@ public class CubeClicker : MonoBehaviour
 
         minX = -4;
         maxX = 5;
+
+        originalColor = fruitRenderer.material.color; // Simpan warna asli
 
         RepositionFruit();
         StartJumping();
@@ -47,17 +56,37 @@ public class CubeClicker : MonoBehaviour
 
     void OnMouseDown()
     {
-        // Instantiate explosion effect
-        GameObject explosion = Instantiate(fruitExplosionPrefab, transform.position, transform.rotation);
+        clickCount++;
 
-        // Destroy explosion effect after 2 seconds
-        Destroy(explosion, 2f);
+        // Mulai coroutine untuk mengganti warna menjadi merah sementara
+        StartCoroutine(ChangeColorTemporary());
 
-        // Reposition the fruit at spawnHeight
-        RepositionFruit();
-        
-        // Restart jumping animation
-        StartJumping();
+        // Lompat sedikit ke atas dengan mengubah posisi tinggi asli
+        ApplySmallJump();
+
+        if (clickCount >= maxClicks)
+        {
+            GameObject explosion = Instantiate(fruitExplosionPrefab, transform.position, transform.rotation);
+            Destroy(explosion, 2f);
+
+            clickCount = 0;
+            RepositionFruit();
+            StartJumping();
+        }
+    }
+
+    // Coroutine untuk mengganti warna menjadi merah sementara
+    IEnumerator ChangeColorTemporary()
+    {
+        fruitRenderer.material.color = Color.red; // Ganti warna menjadi merah
+        yield return new WaitForSeconds(colorChangeDuration); // Tunggu sebentar
+        fruitRenderer.material.color = originalColor; // Kembalikan warna asli
+    }
+
+    // Fungsi untuk mengubah posisi tinggi asli saat klik
+    void ApplySmallJump()
+    {
+        startPosition.y += smallJumpHeight; // Menambah tinggi asli buah
     }
 
     void StartJumping()
@@ -81,6 +110,7 @@ public class CubeClicker : MonoBehaviour
         {
             fruitRenderer.enabled = false;
             RepositionFruit();
+            clickCount = 0;
         }
         else
         {
@@ -94,7 +124,6 @@ public class CubeClicker : MonoBehaviour
         startPosition = new Vector3(randomX, spawnHeight, distanceFromCamera);
         transform.position = startPosition;
 
-        // Reset the timers to start jump from the beginning
         jumpTimer = 0f;
         moveTimer = 0f;
     }
