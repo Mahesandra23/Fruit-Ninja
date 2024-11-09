@@ -1,7 +1,7 @@
 using System.Collections; // Required for IEnumerator and coroutines
 using UnityEngine;
 
-public class RectangleFollowCursor : MonoBehaviour
+public class shooting_hold : MonoBehaviour
 {
     public Transform rectangle;
     public Camera mainCamera;
@@ -15,9 +15,11 @@ public class RectangleFollowCursor : MonoBehaviour
     public float trailWidth = 0.1f; // Width of the trail
     public float recoilAmount = 0.1f; // Amount of recoil (how far the gun moves back)
     public float recoilTime = 0.1f; // How long the recoil lasts before resetting the position
+    public float fireRate = 0.2f; // Time in seconds between consecutive shots (fire rate)
 
     private Vector3 originalPosition; // To store the original position of the rectangle
     private bool isRecoiling = false; // Flag to track if the gun is recoiling
+    private float lastFireTime = 0f; // Time of the last fire to control the rate of fire
 
     void Start()
     {
@@ -34,11 +36,12 @@ public class RectangleFollowCursor : MonoBehaviour
         Vector3 directionToMouse = (worldMousePosition - rectangle.position).normalized;
         rectangle.rotation = Quaternion.LookRotation(directionToMouse);
 
-        // Only allow firing if the gun is not recoiling
-        if (Input.GetMouseButtonDown(0) && !isRecoiling)
+        // Only allow firing if the gun is not recoiling and if the fire rate delay has passed
+        if (Input.GetMouseButton(0) && !isRecoiling && Time.time >= lastFireTime + fireRate)
         {
             FireCubeWithTrail();
             ApplyRecoil();
+            lastFireTime = Time.time; // Update the last fire time to limit the fire rate
         }
     }
 
