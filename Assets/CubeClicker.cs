@@ -8,6 +8,7 @@ public class CubeClicker : MonoBehaviour
     public float jumpHeight = 30f;
     public float jumpSpeed = 2f;
     public float moveSpeed = 1f;
+    public float horizontalSpeed = 0.5f; // Kecepatan pergerakan horizontal
     public float distanceFromCamera = 6f;
     public float disappearThreshold = -8f;
     public float spawnHeight = -30f;
@@ -21,12 +22,13 @@ public class CubeClicker : MonoBehaviour
     private bool isJumping = false;
     private float jumpTimer = 0f;
     private float moveTimer = 0f;
-    private float fruitWidth;
+    private float fruitWidth = 10f;
     private int jumpDirection;
     private float minX, maxX;
 
     private int clickCount = 0; // Menyimpan jumlah klik saat ini
     private Color originalColor; // Menyimpan warna asli buah
+    private int horizontalDirection; // Menentukan arah horizontal pergerakan
 
     void Start()
     {
@@ -37,8 +39,8 @@ public class CubeClicker : MonoBehaviour
             mainCamera = Camera.main;
         }
 
-        minX = -4;
-        maxX = 5;
+        minX = -9;
+        maxX = 9;
 
         originalColor = fruitRenderer.material.color; // Simpan warna asli
 
@@ -93,6 +95,9 @@ public class CubeClicker : MonoBehaviour
     {
         isJumping = true;
         jumpDirection = startPosition.x < 0 ? 1 : -1;
+
+        // Tentukan arah horizontal berdasarkan posisi awal
+        horizontalDirection = startPosition.x < 0 ? 1 : -1; // Jika muncul dari kiri, bergerak ke kanan dan sebaliknya
     }
 
     void AnimateJump()
@@ -101,8 +106,10 @@ public class CubeClicker : MonoBehaviour
         float jumpOffset = Mathf.Sin(jumpTimer) * jumpHeight;
 
         moveTimer += Time.deltaTime * moveSpeed;
-        float moveOffset = Mathf.Sin(moveTimer) * (fruitWidth * 0.5f) * jumpDirection;
+        // Gunakan horizontalDirection untuk pergerakan melayang ke arah yang berlawanan
+        float moveOffset = Mathf.Sin(moveTimer * horizontalSpeed) * (fruitWidth * 0.5f) * horizontalDirection; 
 
+        // Gerakan horizontal yang lebih bebas
         float newX = Mathf.Clamp(startPosition.x + moveOffset, minX, maxX);
         transform.position = new Vector3(newX, startPosition.y + jumpOffset, distanceFromCamera);
 
@@ -126,5 +133,8 @@ public class CubeClicker : MonoBehaviour
 
         jumpTimer = 0f;
         moveTimer = 0f;
+
+        // Tentukan arah horizontal berdasarkan posisi baru
+        horizontalDirection = startPosition.x < 0 ? 1 : -1;
     }
 }
