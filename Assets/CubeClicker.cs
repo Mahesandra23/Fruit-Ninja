@@ -71,6 +71,8 @@ public class CubeClicker : MonoBehaviour
             GameObject explosion = Instantiate(fruitExplosionPrefab, transform.position, transform.rotation);
             Destroy(explosion, 2f);
 
+            GameManager.instance.IncreaseDestroyedFruitCount();
+
             clickCount = 0;
             RepositionFruit();
             StartJumping();
