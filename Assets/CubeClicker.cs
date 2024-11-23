@@ -68,7 +68,7 @@ public class CubeClicker : MonoBehaviour
 
         if (clickCount >= maxClicks)
         {
-            GameObject explosion = Instantiate(fruitExplosionPrefab, transform.position, transform.rotation);
+            GameObject explosion = Instantiate(fruitExplosionPrefab, transform.position, Quaternion.identity);
             Destroy(explosion, 2f);
 
             GameManager.instance.IncreaseDestroyedFruitCount();
