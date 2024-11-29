@@ -60,7 +60,7 @@ public class CubeClicker : MonoBehaviour
     {
         clickCount++;
 
-        // Mulai coroutine untuk mengganti warna menjadi merah sementara
+        // Mulai coroutine untuk mengganti warna menjadi merah sementara hanya jika buah ini diklik
         StartCoroutine(ChangeColorTemporary());
 
         // Lompat sedikit ke atas dengan mengubah posisi tinggi asli
@@ -73,9 +73,11 @@ public class CubeClicker : MonoBehaviour
 
             GameManager.instance.IncreaseDestroyedFruitCount();
 
+            // Beritahu GameManager bahwa buah ini sudah dihancurkan
+            GameManager.instance.FruitDestroyed(this);
+
             clickCount = 0;
-            RepositionFruit();
-            StartJumping();
+            gameObject.SetActive(false); // Nonaktifkan buah
         }
     }
 
@@ -93,7 +95,7 @@ public class CubeClicker : MonoBehaviour
         startPosition.y += smallJumpHeight; // Menambah tinggi asli buah
     }
 
-    void StartJumping()
+    public void StartJumping()
     {
         isJumping = true;
         jumpDirection = startPosition.x < 0 ? 1 : -1;
@@ -109,7 +111,7 @@ public class CubeClicker : MonoBehaviour
 
         moveTimer += Time.deltaTime * moveSpeed;
         // Gunakan horizontalDirection untuk pergerakan melayang ke arah yang berlawanan
-        float moveOffset = Mathf.Sin(moveTimer * horizontalSpeed) * (fruitWidth * 0.5f) * horizontalDirection; 
+        float moveOffset = Mathf.Sin(moveTimer * horizontalSpeed) * (fruitWidth * 0.5f) * horizontalDirection;
 
         // Gerakan horizontal yang lebih bebas
         float newX = Mathf.Clamp(startPosition.x + moveOffset, minX, maxX);
@@ -118,7 +120,11 @@ public class CubeClicker : MonoBehaviour
         if (jumpOffset < disappearThreshold)
         {
             fruitRenderer.enabled = false;
-            RepositionFruit();
+
+            // Laporkan buah yang gagal dihancurkan
+            GameManager.instance.FruitMissed(this);
+
+            RepositionFruit(); // Ulangi posisi buah
             clickCount = 0;
         }
         else
@@ -127,7 +133,7 @@ public class CubeClicker : MonoBehaviour
         }
     }
 
-    void RepositionFruit()
+    public void RepositionFruit()
     {
         float randomX = Random.Range(minX, maxX);
         startPosition = new Vector3(randomX, spawnHeight, distanceFromCamera);
@@ -138,5 +144,12 @@ public class CubeClicker : MonoBehaviour
 
         // Tentukan arah horizontal berdasarkan posisi baru
         horizontalDirection = startPosition.x < 0 ? 1 : -1;
+    }
+
+    public void HideFruit()
+    {
+        fruitRenderer.enabled = false; // Sembunyikan buah
+        isJumping = false; // Matikan loncatan
+        clickCount = 0; // Reset jumlah klik
     }
 }
