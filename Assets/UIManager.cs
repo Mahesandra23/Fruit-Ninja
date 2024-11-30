@@ -9,7 +9,7 @@ public class UIManager : MonoBehaviour
     void Update()
     {
         // Update jumlah buah dan uang di UI
-        textBuah.text = "Buah Dihancurkan: " + GameManager.instance.GetDestroyedFruitsCount();
+        textBuah.text = "Buah: " + GameManager.instance.GetDestroyedFruitsCount();
         textUang.text = "Uang: $" + GameManager.instance.GetMoney();
     }
 }
