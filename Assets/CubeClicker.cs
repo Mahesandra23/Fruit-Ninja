@@ -61,7 +61,7 @@ public class CubeClicker : MonoBehaviour
         clickCount++;
 
         // Mulai coroutine untuk mengganti warna menjadi merah sementara hanya jika buah ini diklik
-        StartCoroutine(ChangeColorTemporary());
+        //StartCoroutine(ChangeColorTemporary());
 
         // Lompat sedikit ke atas dengan mengubah posisi tinggi asli
         ApplySmallJump();
