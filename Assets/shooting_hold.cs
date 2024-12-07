@@ -24,7 +24,7 @@ public class shooting_hold : MonoBehaviour
     private bool isReloading = false; // Flag to track if the gun is reloading
     private float lastFireTime = 0f; // Time of the last fire to control the rate of fire
     private int currentAmmo; // Current ammo count
-
+    private Animator animator;
     void Start()
     {
         originalPosition = rectangle.position; // Store the original position of the rectangle (gun)
@@ -121,5 +121,19 @@ public class shooting_hold : MonoBehaviour
         isReloading = false; // End the reloading process
 
         Debug.Log("Reload complete!");
+    }
+    void Fire()
+    {
+        currentAmmo--;
+
+        // Trigger the recoil animation
+
+        // Fire the tiny cube
+        FireCubeWithTrail();
+
+        if (currentAmmo <= 0)
+        {
+            StartCoroutine(Reload());
+        }
     }
 }

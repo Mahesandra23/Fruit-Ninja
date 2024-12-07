@@ -7,7 +7,6 @@ public class RectangleFollowCursor : MonoBehaviour
     [SerializeField] private Transform rectangle;
     [SerializeField] private Camera mainCamera;
     [SerializeField] private Vector3 offset = new Vector3(-1, 1, 5);
-
     [Header("Firing Settings")]
     [SerializeField] private GameObject tinyCubePrefab;
     [SerializeField] private GameObject trailPrefab;
@@ -20,11 +19,10 @@ public class RectangleFollowCursor : MonoBehaviour
     [Header("Ammo Settings")]
     [SerializeField] private int maxAmmo = 6;
     [SerializeField] private float reloadTime = 2f;
-
-    private Animator animator; // Animator reference
+    [Header("Recoil Settings")]
+    [SerializeField] private Animator animator; // Animator reference
     private bool isReloading = false;
     private int currentAmmo;
-
     void Start()
     {
         animator = rectangle.GetComponent<Animator>(); // Get the Animator component
@@ -33,6 +31,7 @@ public class RectangleFollowCursor : MonoBehaviour
 
     void Update()
     {
+        animator.SetBool("idle", true);
         Vector3 mousePosition = Input.mousePosition;
         mousePosition.z = mainCamera.nearClipPlane + offset.z;
         Vector3 worldMousePosition = mainCamera.ScreenToWorldPoint(mousePosition);
@@ -50,7 +49,7 @@ public class RectangleFollowCursor : MonoBehaviour
         StartCoroutine(Reload());
     }
     }
-
+    
     void Fire()
     {
         currentAmmo--;
@@ -92,13 +91,13 @@ public class RectangleFollowCursor : MonoBehaviour
 {
     isReloading = true;
 
-    // Trigger the reload animation
-    animator.SetTrigger("Reload");
+    animator.SetBool("Reload", true);
 
     Debug.Log("Reloading...");
-    yield return new WaitForSeconds(reloadTime); // Wait for reload animation to finish
+    yield return new WaitForSeconds(reloadTime); 
 
     currentAmmo = maxAmmo;
+    animator.SetBool("Reload",false);
     isReloading = false;
     Debug.Log("Reload complete!");
 }
