@@ -23,6 +23,7 @@ public class RectangleFollowCursor : MonoBehaviour
     [SerializeField] private Animator animator; // Animator reference
     private bool isReloading = false;
     private int currentAmmo;
+
     void Start()
     {
         animator = rectangle.GetComponent<Animator>(); // Get the Animator component
@@ -30,25 +31,27 @@ public class RectangleFollowCursor : MonoBehaviour
     }
 
     void Update()
+{
+    // Always calculate and apply rotation
+    Vector3 mousePosition = Input.mousePosition;
+    mousePosition.z = mainCamera.nearClipPlane + offset.z;
+    Vector3 worldMousePosition = mainCamera.ScreenToWorldPoint(mousePosition);
+
+    Vector3 directionToMouse = (worldMousePosition - rectangle.position).normalized;
+    rectangle.rotation = Quaternion.LookRotation(directionToMouse);
+
+    // Handle firing and reloading logic
+    if (Input.GetMouseButtonDown(0) && !isReloading && currentAmmo > 0)
     {
-        animator.SetBool("idle", true);
-        Vector3 mousePosition = Input.mousePosition;
-        mousePosition.z = mainCamera.nearClipPlane + offset.z;
-        Vector3 worldMousePosition = mainCamera.ScreenToWorldPoint(mousePosition);
+        Fire();
+    }
 
-        Vector3 directionToMouse = (worldMousePosition - rectangle.position).normalized;
-        rectangle.rotation = Quaternion.LookRotation(directionToMouse);
-
-        if (Input.GetMouseButtonDown(0) && !isReloading && currentAmmo > 0)
-        {
-            Fire();
-        }
-
-         if (Input.GetKeyDown(KeyCode.R) && !isReloading)
+    if (Input.GetKeyDown(KeyCode.R) && !isReloading)
     {
         StartCoroutine(Reload());
     }
-    }
+}
+
     
     void Fire()
     {
@@ -87,18 +90,38 @@ public class RectangleFollowCursor : MonoBehaviour
         Destroy(tinyCube, trailLifetime);
     }
 
-    IEnumerator Reload()
+  IEnumerator Reload()
 {
-    isReloading = true;
+    isReloading = true; // Prevent cursor following
 
-    animator.SetBool("Reload", true);
+    // Trigger the reload animation
+    animator.SetBool("reload", true);
+    animator.SetBool("idle", false);
 
     Debug.Log("Reloading...");
-    yield return new WaitForSeconds(reloadTime); 
+    yield return new WaitForSeconds(reloadTime);
 
+    // Reload logic
     currentAmmo = maxAmmo;
-    animator.SetBool("Reload",false);
-    isReloading = false;
+
+    // Reset animation parameters
+    animator.SetBool("reload", false);
+    animator.SetBool("idle", true);
+
+    isReloading = false; // Re-enable cursor following
     Debug.Log("Reload complete!");
 }
+
+void LateUpdate()
+{
+    if (isReloading) return; // Skip cursor following during reload
+
+    Vector3 mousePosition = Input.mousePosition;
+    mousePosition.z = mainCamera.nearClipPlane + offset.z;
+    Vector3 worldMousePosition = mainCamera.ScreenToWorldPoint(mousePosition);
+
+    Vector3 directionToMouse = (worldMousePosition - rectangle.position).normalized;
+    rectangle.rotation = Quaternion.LookRotation(directionToMouse);
+}
+
 }

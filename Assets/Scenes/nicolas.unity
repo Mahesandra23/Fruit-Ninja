@@ -194,13 +194,13 @@ MonoBehaviour:
   mainCamera: {fileID: 963194227}
   offset: {x: 0, y: 0, z: 100}
   tinyCubePrefab: {fileID: 953327599}
-  trailPrefab: {fileID: 1132649708}
+  trailPrefab: {fileID: 333105651}
   firePoint: {fileID: 1132649709}
   cubeSpeed: 1000
   trailLifetime: 0.5
   trailWidth: 0.1
   maxAmmo: 6
-  reloadTime: 1
+  reloadTime: 2
   animator: {fileID: 321698398}
 --- !u!65 &321698394
 BoxCollider:
@@ -297,11 +297,11 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 321698392}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 339dc454e461565479fea2be21e878f8, type: 2}
   m_CullingMode: 0
-  m_UpdateMode: 0
+  m_UpdateMode: 1
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
