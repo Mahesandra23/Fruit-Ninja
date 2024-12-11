@@ -1,28 +1,133 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class RectangleFollowCursor : MonoBehaviour
 {
-    public Transform rectangle;
-    public Camera mainCamera;
-    public Vector3 offset = new Vector3(-1, 1, 5); // Offset for the bottom-left corner in world space
+    [Header("Gun Settings")]
+    [SerializeField] private Transform rectangle;
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private Vector3 offset = new Vector3(-1, 1, 5);
+    [Header("Firing Settings")]
+    [SerializeField] private GameObject tinyCubePrefab;
+    [SerializeField] private GameObject trailPrefab;
+    [SerializeField] private Transform firePoint;
+    [SerializeField] private float cubeSpeed = 10f;
+    [SerializeField] private float trailLifetime = 0.5f;
+    [SerializeField] private float trailWidth = 0.1f;
+
+    [Header("Recoil Settings")]
+    [Header("Ammo Settings")]
+    [SerializeField] private int maxAmmo = 6;
+    [SerializeField] private float reloadTime = 2f;
+    [Header("Recoil Settings")]
+    [SerializeField] private Animator animator; // Animator reference
+    private bool isReloading = false;
+    private int currentAmmo;
 
     void Start()
     {
-
+        animator = rectangle.GetComponent<Animator>(); // Get the Animator component
+        currentAmmo = maxAmmo; // Initialize ammo
     }
 
     void Update()
-    {
-        // Get the mouse position in world space
-        Vector3 mousePosition = Input.mousePosition;
-        mousePosition.z = mainCamera.nearClipPlane + offset.z;
-        Vector3 worldMousePosition = mainCamera.ScreenToWorldPoint(mousePosition);
+{
+    // Always calculate and apply rotation
+    Vector3 mousePosition = Input.mousePosition;
+    mousePosition.z = mainCamera.nearClipPlane + offset.z;
+    Vector3 worldMousePosition = mainCamera.ScreenToWorldPoint(mousePosition);
 
-        // Make the rectangle point toward the mouse
-        Vector3 directionToMouse = (worldMousePosition - rectangle.position).normalized;
-        rectangle.rotation = Quaternion.LookRotation(directionToMouse);
+    Vector3 directionToMouse = (worldMousePosition - rectangle.position).normalized;
+    rectangle.rotation = Quaternion.LookRotation(directionToMouse);
+
+    // Handle firing and reloading logic
+    if (Input.GetMouseButtonDown(0) && !isReloading && currentAmmo > 0)
+    {
+        Fire();
+    }
+
+    if (Input.GetKeyDown(KeyCode.R) && !isReloading)
+    {
+        StartCoroutine(Reload());
     }
 }
 
+    
+    void Fire()
+    {
+        currentAmmo--;
+
+        // Trigger the recoil animation
+
+        // Fire the tiny cube
+        FireCubeWithTrail();
+
+        if (currentAmmo <= 0)
+        {
+            StartCoroutine(Reload());
+        }
+    }
+
+    void FireCubeWithTrail()
+    {
+        GameObject tinyCube = Instantiate(tinyCubePrefab, firePoint.position, firePoint.rotation);
+        Rigidbody rb = tinyCube.AddComponent<Rigidbody>();
+        rb.useGravity = false;
+        rb.velocity = firePoint.forward * cubeSpeed;
+
+        GameObject firedTrail = Instantiate(trailPrefab, tinyCube.transform);
+        firedTrail.transform.localPosition = Vector3.zero;
+
+        TrailRenderer trailRenderer = firedTrail.GetComponent<TrailRenderer>();
+        if (trailRenderer != null)
+        {
+            trailRenderer.time = trailLifetime;
+            trailRenderer.startWidth = trailWidth;
+            trailRenderer.endWidth = trailWidth;
+            trailRenderer.minVertexDistance = 0.05f;
+        }
+
+        Destroy(tinyCube, trailLifetime);
+    }
+
+  void LateUpdate()
+{
+    // Skip movement if reloading
+    if (isReloading) return;
+
+    // Cursor-following logic
+    Vector3 mousePosition = Input.mousePosition;
+    mousePosition.z = mainCamera.nearClipPlane + offset.z;
+    Vector3 worldMousePosition = mainCamera.ScreenToWorldPoint(mousePosition);
+
+    Vector3 directionToMouse = (worldMousePosition - rectangle.position).normalized;
+    rectangle.rotation = Quaternion.LookRotation(directionToMouse);
+}
+
+IEnumerator Reload()
+{
+    isReloading = true; // Prevent movement during reload
+
+    // Trigger the reload animation
+    animator.SetBool("reload", true);
+    animator.SetBool("idle", false);
+
+    Debug.Log("Reloading...");
+    yield return new WaitForSeconds(reloadTime);
+
+    // Reload logic
+    currentAmmo = maxAmmo;
+
+    // Reset animation parameters
+    animator.SetBool("reload", false);
+    animator.SetBool("idle", true);
+
+    isReloading = false; // Re-enable movement after reload
+    Debug.Log("Reload complete!");
+}
+public void SetReloadRotation()
+{
+    rectangle.rotation = Quaternion.Euler(90f, rectangle.rotation.eulerAngles.y, rectangle.rotation.eulerAngles.z);
+}
+
+}
