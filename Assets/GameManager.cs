@@ -18,6 +18,10 @@ public class GameManager : MonoBehaviour
     public int maxDestroyedFruits = 5; // Batas jumlah buah yang dihancurkan
     public int maxMissedFruits = 3; // Batas jumlah buah yang tidak dihancurkan
 
+    private int bombClickedCount = 0; // Jumlah bom yang telah diklik
+    public int maxBombClicks = 1; // Jumlah maksimum bom yang boleh diklik sebelum game over
+
+
     void Awake()
     {
         if (instance == null)
@@ -52,10 +56,18 @@ public class GameManager : MonoBehaviour
     // Fungsi untuk mengecek apakah permainan harus berhenti
     private void CheckStopCriteria()
     {
-        if (destroyedFruitsCount >= maxDestroyedFruits || missedFruitsCount >= maxMissedFruits)
+        if (destroyedFruitsCount >= maxDestroyedFruits || 
+            missedFruitsCount >= maxMissedFruits || 
+            bombClickedCount >= maxBombClicks)
         {
             StopGame();
         }
+    }
+
+
+    public bool IsGameOver
+    {
+        get { return isGameOver; }
     }
 
     private void StopGame()
@@ -65,13 +77,19 @@ public class GameManager : MonoBehaviour
             isGameOver = true;
             Debug.Log("Permainan selesai!");
 
-            // Hentikan semua aktivitas permainan, misalnya menghentikan spawn buah
-            StopAllCoroutines();
+            StopAllCoroutines(); // Hentikan semua coroutine
+            
+            // Nonaktifkan semua buah yang aktif
+            foreach (CubeClicker fruit in activeFruits)
+            {
+                fruit.gameObject.SetActive(false);
+            }
+            activeFruits.Clear();
 
-            // Tampilkan pesan game over atau lakukan aksi lainnya
-            // Misalnya, tampilkan UI "Game Over"
+            // Lakukan aksi lainnya, misalnya tampilkan UI Game Over
         }
     }
+
 
     public void IncreaseDestroyedFruitCount()
     {
@@ -164,5 +182,17 @@ public class GameManager : MonoBehaviour
         }
 
         IncreaseMissedFruitCount();
+    }
+
+    public void BombClicked()
+    {
+        bombClickedCount++;
+        Debug.Log("Bom diklik! Total bom: " + bombClickedCount);
+
+        if (bombClickedCount >= maxBombClicks)
+        {
+            Debug.Log("Game over karena bom diklik!");
+            StopGame();
+        }
     }
 }
