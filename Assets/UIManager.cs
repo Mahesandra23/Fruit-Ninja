@@ -1,15 +1,24 @@
 using UnityEngine;
-using TMPro; // Tambahkan ini
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
-    public TextMeshProUGUI textBuah; // Ubah menjadi TextMeshProUGUI
-    public TextMeshProUGUI textUang; // Ubah menjadi TextMeshProUGUI
+    public TextMeshProUGUI textBuah;
+    public TextMeshProUGUI textUang;
+    public TextMeshProUGUI textScore;
+    public TextMeshProUGUI textNyawa; // Tambahkan referensi untuk menampilkan nyawa
+    public GameObject gameOverPanel;
 
     void Update()
     {
-        // Update jumlah buah dan uang di UI
         textBuah.text = "Buah: " + GameManager.instance.GetDestroyedFruitsCount();
         textUang.text = "Uang: $" + GameManager.instance.GetMoney();
+        textScore.text = "Score: " + GameManager.instance.GetScore();
+        textNyawa.text = "Nyawa: " + GameManager.instance.GetLives(); // Menampilkan nyawa
+
+        if (GameManager.instance.IsGameOver)
+        {
+            gameOverPanel.SetActive(true);
+        }
     }
 }

@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
     private int destroyedFruitsCount = 0;
     private int missedFruitsCount = 0;
     private int uang = 0;
+    private int score = 0;
 
     public List<CubeClicker> fruits; // Daftar semua buah
     public float spawnDelay = 2f; // Jeda antar buah
@@ -20,6 +21,7 @@ public class GameManager : MonoBehaviour
 
     private int bombClickedCount = 0; // Jumlah bom yang telah diklik
     public int maxBombClicks = 1; // Jumlah maksimum bom yang boleh diklik sebelum game over
+    public GameObject explosionEffect;
 
 
     void Awake()
@@ -95,13 +97,17 @@ public class GameManager : MonoBehaviour
     {
         destroyedFruitsCount++;
         AddMoney(10);
-        Debug.Log("Buah yang hancur: " + destroyedFruitsCount + ", Uang: " + uang + " dollar");
+        score += 10; // Menambahkan skor saat buah dihancurkan
+        Debug.Log("Buah yang hancur: " + destroyedFruitsCount + ", Uang: " + uang + " dollar, Score: " + score);
     }
 
     public void IncreaseMissedFruitCount()
     {
         missedFruitsCount++;
-        Debug.Log("Buah yang tidak dihancurkan: " + missedFruitsCount);
+        if (missedFruitsCount > maxMissedFruits) // Pastikan tidak lebih dari maxMissedFruits
+        {
+            missedFruitsCount = maxMissedFruits;
+        }
     }
 
     private void AddMoney(int amount)
@@ -117,6 +123,16 @@ public class GameManager : MonoBehaviour
     public int GetMoney()
     {
         return uang;
+    }
+
+    public int GetScore() // Fungsi untuk mendapatkan skor
+    {
+        return missedFruitsCount;
+    }
+
+    public int GetLives()
+    {
+        return maxMissedFruits - missedFruitsCount;
     }
 
     // Coroutine untuk spawn buah dengan logika batas maksimum
@@ -176,6 +192,8 @@ public class GameManager : MonoBehaviour
     // Panggil fungsi ini saat buah tidak dihancurkan
     public void FruitMissed(CubeClicker fruit)
     {
+        if (fruit.isBomb) return;
+
         if (activeFruits.Contains(fruit))
         {
             activeFruits.Remove(fruit); // Hapus dari daftar buah aktif
@@ -184,10 +202,16 @@ public class GameManager : MonoBehaviour
         IncreaseMissedFruitCount();
     }
 
-    public void BombClicked()
+    public void BombClicked(Vector3 position)
     {
         bombClickedCount++;
         Debug.Log("Bom diklik! Total bom: " + bombClickedCount);
+
+        // Tampilkan efek ledakan di posisi tengah layar
+        Instantiate(explosionEffect, position, Quaternion.identity);
+
+        // Guncangkan kamera
+        Camera.main.GetComponent<CameraShake>().StartCoroutine(Camera.main.GetComponent<CameraShake>().Shake(0.5f, 0.3f));
 
         if (bombClickedCount >= maxBombClicks)
         {
@@ -195,4 +219,6 @@ public class GameManager : MonoBehaviour
             StopGame();
         }
     }
+
+
 }

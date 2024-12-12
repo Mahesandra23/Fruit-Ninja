@@ -62,8 +62,13 @@
         {
             if (isBomb) // Jika objek ini adalah bom
             {
-                GameManager.instance.BombClicked();
-                gameObject.SetActive(false); // Nonaktifkan bom setelah diklik
+                Vector3 centerPosition = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 2, distanceFromCamera));
+                // Mengatur posisi Z untuk menjaga jarak dari kamera
+                centerPosition.z = distanceFromCamera - 5f;
+
+                // Panggil fungsi BombClicked dengan posisi tengah
+                GameManager.instance.BombClicked(centerPosition);
+                GameManager.instance.FruitDestroyed(this);
                 return; // Keluar dari fungsi
             }
 
