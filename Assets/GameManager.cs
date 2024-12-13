@@ -247,6 +247,7 @@ public class GameManager : MonoBehaviour
         if (explosionEffect != null)
         {
             Instantiate(explosionEffect, position, Quaternion.identity);
+            Camera.main.GetComponent<CameraShake>().StartCoroutine(Camera.main.GetComponent<CameraShake>().Shake(0.5f, 0.3f)); // Guncangan 0.5 detik dengan magnitude 0.3
         }
 
         if (bombClickedCount >= maxBombClicks)
@@ -296,4 +297,6 @@ public class GameManager : MonoBehaviour
         totalMoney = 0;
         highScores.Clear();
     }
+
+    
 }
