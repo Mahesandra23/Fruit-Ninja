@@ -11,10 +11,11 @@ public class GameManager : MonoBehaviour
     private int score = 0;
 
     public List<CubeClicker> fruits; // Daftar semua buah
+    public List<CubeClicker> bombs;
     public float spawnDelay = 2f; // Jeda antar buah
     public int maxActiveFruits = 5; // Jumlah maksimum buah yang aktif sekaligus
 
-    private List<CubeClicker> activeFruits = new List<CubeClicker>(); // Buah yang sedang aktif
+    private List<CubeClicker> activeObjects = new List<CubeClicker>();
     private bool isGameOver = false; // Flag untuk memeriksa status game
     public int maxDestroyedFruits = 5; // Batas jumlah buah yang dihancurkan
     public int maxMissedFruits = 3; // Batas jumlah buah yang tidak dihancurkan
@@ -44,9 +45,13 @@ public class GameManager : MonoBehaviour
         {
             fruit.gameObject.SetActive(false);
         }
+        foreach (CubeClicker bomb in bombs)
+        {
+            bomb.gameObject.SetActive(false);
+        }
 
-        // Mulai coroutine untuk memunculkan buah
-        StartCoroutine(SpawnFruitsSequentially());
+        // Mulai coroutine untuk memunculkan buah/bom
+        StartCoroutine(SpawnObjectsSequentially());
     }
 
     void Update()
@@ -81,12 +86,12 @@ public class GameManager : MonoBehaviour
 
             StopAllCoroutines(); // Hentikan semua coroutine
             
-            // Nonaktifkan semua buah yang aktif
-            foreach (CubeClicker fruit in activeFruits)
+            // Nonaktifkan semua objek yang aktif
+            foreach (CubeClicker obj in activeObjects)
             {
-                fruit.gameObject.SetActive(false);
+                obj.gameObject.SetActive(false);
             }
-            activeFruits.Clear();
+            activeObjects.Clear();
 
             // Lakukan aksi lainnya, misalnya tampilkan UI Game Over
         }
@@ -136,21 +141,21 @@ public class GameManager : MonoBehaviour
     }
 
     // Coroutine untuk spawn buah dengan logika batas maksimum
-    private IEnumerator SpawnFruitsSequentially()
+private IEnumerator SpawnObjectsSequentially()
     {
-        while (!isGameOver)  // Jangan spawn buah jika game sudah selesai
+        while (!isGameOver)  // Jangan spawn jika game sudah selesai
         {
-            // Hanya spawn jika jumlah buah aktif lebih sedikit dari batas maksimum
-            if (activeFruits.Count < maxActiveFruits)
+            // Hanya spawn jika jumlah objek aktif lebih sedikit dari batas maksimum
+            if (activeObjects.Count < maxActiveFruits)
             {
-                CubeClicker fruitToSpawn = GetInactiveFruit();
+                CubeClicker objectToSpawn = GetRandomObject(); // Dapatkan objek (buah/bom) untuk di-spawn
 
-                if (fruitToSpawn != null)
+                if (objectToSpawn != null)
                 {
-                    fruitToSpawn.gameObject.SetActive(true); // Aktifkan buah
-                    fruitToSpawn.RepositionFruit(); // Posisi ulang buah
-                    fruitToSpawn.StartJumping(); // Mulai animasi loncatan
-                    activeFruits.Add(fruitToSpawn); // Tambahkan ke daftar buah aktif
+                    objectToSpawn.gameObject.SetActive(true); // Aktifkan objek
+                    objectToSpawn.RepositionFruit(); // Posisi ulang objek
+                    objectToSpawn.StartJumping(); // Mulai animasi loncatan
+                    activeObjects.Add(objectToSpawn); // Tambahkan ke daftar objek aktif
                 }
             }
 
@@ -158,60 +163,66 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Fungsi untuk mendapatkan buah yang tidak aktif
-    private CubeClicker GetInactiveFruit()
+    // Fungsi untuk mendapatkan objek acak (buah atau bom)
+    private CubeClicker GetRandomObject()
     {
-        List<CubeClicker> inactiveFruits = new List<CubeClicker>();
+        List<CubeClicker> availableObjects = new List<CubeClicker>();
 
         foreach (CubeClicker fruit in fruits)
         {
             if (!fruit.gameObject.activeSelf) // Jika buah tidak aktif
             {
-                inactiveFruits.Add(fruit);
+                availableObjects.Add(fruit);
             }
         }
 
-        if (inactiveFruits.Count > 0)
+        foreach (CubeClicker bomb in bombs)
         {
-            int randomIndex = Random.Range(0, inactiveFruits.Count);
-            return inactiveFruits[randomIndex];
+            if (!bomb.gameObject.activeSelf) // Jika bom tidak aktif
+            {
+                availableObjects.Add(bomb);
+            }
         }
 
-        return null; // Tidak ada buah yang tersedia
+        if (availableObjects.Count > 0)
+        {
+            int randomIndex = Random.Range(0, availableObjects.Count);
+            return availableObjects[randomIndex];
+        }
+
+        return null; // Tidak ada objek yang tersedia
     }
 
-    // Panggil fungsi ini saat buah dihancurkan
-    public void FruitDestroyed(CubeClicker fruit)
+    // Panggil fungsi ini saat objek dihancurkan
+    // Saat objek dihancurkan (bom)
+    public void ObjectDestroyed(CubeClicker obj)
     {
-        if (activeFruits.Contains(fruit))
+        if (activeObjects.Contains(obj))
         {
-            activeFruits.Remove(fruit); // Hapus dari daftar buah aktif
+            activeObjects.Remove(obj); // Hapus dari daftar objek aktif
+        }
+
+        if (fruits.Contains(obj))
+        {
+            IncreaseDestroyedFruitCount();
+        }
+        else if (bombs.Contains(obj))
+        {
+            BombClicked(obj.transform.position); // Berikan posisi bom
         }
     }
 
-    // Panggil fungsi ini saat buah tidak dihancurkan
-    public void FruitMissed(CubeClicker fruit)
-    {
-        if (fruit.isBomb) return;
-
-        if (activeFruits.Contains(fruit))
-        {
-            activeFruits.Remove(fruit); // Hapus dari daftar buah aktif
-        }
-
-        IncreaseMissedFruitCount();
-    }
-
+    // Fungsi untuk menangani bom yang diklik
     public void BombClicked(Vector3 position)
     {
         bombClickedCount++;
         Debug.Log("Bom diklik! Total bom: " + bombClickedCount);
 
-        // Tampilkan efek ledakan di posisi tengah layar
-        Instantiate(explosionEffect, position, Quaternion.identity);
-
-        // Guncangkan kamera
-        Camera.main.GetComponent<CameraShake>().StartCoroutine(Camera.main.GetComponent<CameraShake>().Shake(0.5f, 0.3f));
+        // Tampilkan efek ledakan di posisi bom
+        if (explosionEffect != null)
+        {
+            Instantiate(explosionEffect, position, Quaternion.identity);
+        }
 
         if (bombClickedCount >= maxBombClicks)
         {
@@ -220,5 +231,19 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
+    // Panggil fungsi ini saat objek tidak dihancurkan
+    public void ObjectMissed(CubeClicker obj)
+    {
+        if (activeObjects.Contains(obj))
+        {
+            activeObjects.Remove(obj); // Hapus dari daftar objek aktif
+        }
+
+        if (fruits.Contains(obj))
+        {
+            IncreaseMissedFruitCount();
+        }
+    }
 
 }

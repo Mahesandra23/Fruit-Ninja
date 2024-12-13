@@ -68,7 +68,6 @@
 
                 // Panggil fungsi BombClicked dengan posisi tengah
                 GameManager.instance.BombClicked(centerPosition);
-                GameManager.instance.FruitDestroyed(this);
                 return; // Keluar dari fungsi
             }
 
@@ -84,7 +83,7 @@
                 GameManager.instance.IncreaseDestroyedFruitCount();
 
                 // Beritahu GameManager bahwa buah ini sudah dihancurkan
-                GameManager.instance.FruitDestroyed(this);
+                GameManager.instance.ObjectDestroyed(this);
 
                 clickCount = 0;
                 gameObject.SetActive(false); // Nonaktifkan buah
@@ -134,7 +133,7 @@
             {
                 fruitRenderer.enabled = false;
 
-                GameManager.instance.FruitMissed(this);
+                GameManager.instance.ObjectMissed(this);
                 gameObject.SetActive(false); // Nonaktifkan buah setelah gagal
                 clickCount = 0;
             }
