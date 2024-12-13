@@ -3,13 +3,7 @@ guid: 52a42024c0fd3014289c42f61a7001ef
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences:
-  - rectangle: {instanceID: 0}
-  - mainCamera: {instanceID: 0}
-  - tinyCubePrefab: {fileID: 3375924970082564092, guid: d3b03c9a0dd3e724f96c420ad6a27203, type: 3}
-  - trailPrefab: {fileID: 5804204471009216758, guid: 6311f153991b46a4e9d8e4016eccbcc3, type: 3}
-  - firePoint: {instanceID: 0}
-  - animator: {instanceID: 0}
+  defaultReferences: []
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

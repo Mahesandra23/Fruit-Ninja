@@ -16,19 +16,14 @@ public class shooting_hold : MonoBehaviour
     public float recoilAmount = 0.1f; // Amount of recoil (how far the gun moves back)
     public float recoilTime = 0.1f; // How long the recoil lasts before resetting the position
     public float fireRate = 0.2f; // Time in seconds between consecutive shots (fire rate)
-    public int maxAmmo = 6; // Max ammo per reload
-    public float reloadTime = 2f; // Time it takes to reload
 
     private Vector3 originalPosition; // To store the original position of the rectangle
     private bool isRecoiling = false; // Flag to track if the gun is recoiling
-    private bool isReloading = false; // Flag to track if the gun is reloading
     private float lastFireTime = 0f; // Time of the last fire to control the rate of fire
-    private int currentAmmo; // Current ammo count
-    private Animator animator;
+
     void Start()
     {
         originalPosition = rectangle.position; // Store the original position of the rectangle (gun)
-        currentAmmo = maxAmmo; // Initialize ammo
     }
 
     void Update()
@@ -41,19 +36,12 @@ public class shooting_hold : MonoBehaviour
         Vector3 directionToMouse = (worldMousePosition - rectangle.position).normalized;
         rectangle.rotation = Quaternion.LookRotation(directionToMouse);
 
-        // Reload when pressing the R key
-        if (Input.GetKeyDown(KeyCode.R) && !isReloading)
-        {
-            StartCoroutine(Reload());
-        }
-
-        // Only allow firing if the gun is not recoiling, not reloading, and if the fire rate delay has passed
-        if (Input.GetMouseButton(0) && !isRecoiling && !isReloading && Time.time >= lastFireTime + fireRate && currentAmmo > 0)
+        // Only allow firing if the gun is not recoiling and if the fire rate delay has passed
+        if (Input.GetMouseButton(0) && !isRecoiling && Time.time >= lastFireTime + fireRate)
         {
             FireCubeWithTrail();
             ApplyRecoil();
             lastFireTime = Time.time; // Update the last fire time to limit the fire rate
-            currentAmmo--; // Decrease ammo with each shot
         }
     }
 
@@ -62,8 +50,8 @@ public class shooting_hold : MonoBehaviour
         // Instantiate the tiny cube at the fire point's position and rotation
         GameObject tinyCube = Instantiate(tinyCubePrefab, firePoint.position, firePoint.rotation);
         Rigidbody rb = tinyCube.AddComponent<Rigidbody>(); // Add a Rigidbody to make it move
-        rb.useGravity = false; 
-        rb.velocity = firePoint.forward * cubeSpeed; 
+        rb.useGravity = false; // Disable gravity so the cube moves in a straight line
+        rb.velocity = firePoint.forward * cubeSpeed; // Set the velocity of the tiny cube
 
         // Attach the trail to the tiny cube
         GameObject firedTrail = Instantiate(trailPrefab, tinyCube.transform);
@@ -80,7 +68,7 @@ public class shooting_hold : MonoBehaviour
         }
 
         // Destroy the tiny cube after the specified lifetime (bullet-like behavior)
-        Destroy(tinyCube, trailLifetime);
+        Destroy(tinyCube, trailLifetime); 
     }
 
     void ApplyRecoil()
@@ -105,35 +93,5 @@ public class shooting_hold : MonoBehaviour
 
         // Allow firing again after recoil is finished
         isRecoiling = false;
-    }
-
-    // Coroutine to handle reloading
-    IEnumerator Reload()
-    {
-        isReloading = true;
-
-        // Optionally trigger a reload animation (if you have one)
-
-        Debug.Log("Reloading...");
-        yield return new WaitForSeconds(reloadTime); // Wait for reload animation to finish
-
-        currentAmmo = maxAmmo; // Refill ammo
-        isReloading = false; // End the reloading process
-
-        Debug.Log("Reload complete!");
-    }
-    void Fire()
-    {
-        currentAmmo--;
-
-        // Trigger the recoil animation
-
-        // Fire the tiny cube
-        FireCubeWithTrail();
-
-        if (currentAmmo <= 0)
-        {
-            StartCoroutine(Reload());
-        }
     }
 }
