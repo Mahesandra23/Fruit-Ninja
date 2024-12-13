@@ -24,6 +24,8 @@ public class GameManager : MonoBehaviour
     private int bombClickedCount = 0; // Jumlah bom yang telah diklik
     public int maxBombClicks = 1; // Jumlah maksimum bom yang boleh diklik sebelum game over
     public GameObject explosionEffect;
+    public AudioClip explosionSound; // Add reference for the explosion sound clip
+    private AudioSource audioSource;  // Reference to the AudioSource
 
     void Awake()
     {
@@ -36,6 +38,8 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+         audioSource = GetComponent<AudioSource>(); // Get the AudioSource component
     }
 
     void Start()
@@ -248,6 +252,12 @@ public class GameManager : MonoBehaviour
         {
             Instantiate(explosionEffect, position, Quaternion.identity);
             Camera.main.GetComponent<CameraShake>().StartCoroutine(Camera.main.GetComponent<CameraShake>().Shake(0.5f, 0.3f)); // Guncangan 0.5 detik dengan magnitude 0.3
+        }
+
+        // Play the explosion sound effect
+        if (audioSource != null && explosionSound != null)
+        {
+            audioSource.PlayOneShot(explosionSound);
         }
 
         if (bombClickedCount >= maxBombClicks)
