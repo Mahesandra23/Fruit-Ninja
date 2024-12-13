@@ -127,7 +127,7 @@ public class GameManager : MonoBehaviour
 
     public int GetScore() // Fungsi untuk mendapatkan skor
     {
-        return missedFruitsCount;
+        return score;
     }
 
     public int GetLives()
