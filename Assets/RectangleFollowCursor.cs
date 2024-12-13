@@ -1,94 +1,133 @@
-using System.Collections; // Required for IEnumerator and coroutines
+using System.Collections;
 using UnityEngine;
 
 public class RectangleFollowCursor : MonoBehaviour
 {
-    public Transform rectangle;
-    public Camera mainCamera;
-    public Vector3 offset = new Vector3(-1, 1, 5); // Offset for the bottom-left corner in world space
+    [Header("Gun Settings")]
+    [SerializeField] private Transform rectangle;
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private Vector3 offset = new Vector3(-1, 1, 5);
+    [Header("Firing Settings")]
+    [SerializeField] private GameObject tinyCubePrefab;
+    [SerializeField] private GameObject trailPrefab;
+    [SerializeField] private Transform firePoint;
+    [SerializeField] private float cubeSpeed = 10f;
+    [SerializeField] private float trailLifetime = 0.5f;
+    [SerializeField] private float trailWidth = 0.1f;
 
-    public GameObject tinyCubePrefab; // Reference to the tiny cube prefab
-    public GameObject trailPrefab; // Reference to the "Trail" GameObject
-    public Transform firePoint; // The edge of the rectangle where the tiny cube will be fired from
-    public float cubeSpeed = 10f; // Speed of the tiny cube
-    public float trailLifetime = 0.5f; // Lifetime of the trail in seconds (short trail)
-    public float trailWidth = 0.1f; // Width of the trail
-    public float recoilAmount = 0.1f; // Amount of recoil (how far the gun moves back)
-    public float recoilTime = 0.1f; // How long the recoil lasts before resetting the position
-
-    private Vector3 originalPosition; // To store the original position of the rectangle
-    private bool isRecoiling = false; // Flag to track if the gun is recoiling
+    [Header("Recoil Settings")]
+    [Header("Ammo Settings")]
+    [SerializeField] private int maxAmmo = 6;
+    [SerializeField] private float reloadTime = 2f;
+    [Header("Recoil Settings")]
+    [SerializeField] private Animator animator; // Animator reference
+    private bool isReloading = false;
+    private int currentAmmo;
 
     void Start()
     {
-        originalPosition = rectangle.position; // Store the original position of the rectangle (gun)
+        animator = rectangle.GetComponent<Animator>(); // Get the Animator component
+        currentAmmo = maxAmmo; // Initialize ammo
     }
 
     void Update()
+{
+    // Always calculate and apply rotation
+    Vector3 mousePosition = Input.mousePosition;
+    mousePosition.z = mainCamera.nearClipPlane + offset.z;
+    Vector3 worldMousePosition = mainCamera.ScreenToWorldPoint(mousePosition);
+
+    Vector3 directionToMouse = (worldMousePosition - rectangle.position).normalized;
+    rectangle.rotation = Quaternion.LookRotation(directionToMouse);
+
+    // Handle firing and reloading logic
+    if (Input.GetMouseButtonDown(0) && !isReloading && currentAmmo > 0)
     {
-        // Make the rectangle follow the mouse and point toward it
-        Vector3 mousePosition = Input.mousePosition;
-        mousePosition.z = mainCamera.nearClipPlane + offset.z;
-        Vector3 worldMousePosition = mainCamera.ScreenToWorldPoint(mousePosition);
+        Fire();
+    }
 
-        Vector3 directionToMouse = (worldMousePosition - rectangle.position).normalized;
-        rectangle.rotation = Quaternion.LookRotation(directionToMouse);
+    if (Input.GetKeyDown(KeyCode.R) && !isReloading)
+    {
+        StartCoroutine(Reload());
+    }
+}
 
-        // Only allow firing if the gun is not recoiling
-        if (Input.GetMouseButtonDown(0) && !isRecoiling)
+    
+    void Fire()
+    {
+        currentAmmo--;
+
+        // Trigger the recoil animation
+
+        // Fire the tiny cube
+        FireCubeWithTrail();
+
+        if (currentAmmo <= 0)
         {
-            FireCubeWithTrail();
-            ApplyRecoil();
+            StartCoroutine(Reload());
         }
     }
 
     void FireCubeWithTrail()
     {
-        // Instantiate the tiny cube at the fire point's position and rotation
         GameObject tinyCube = Instantiate(tinyCubePrefab, firePoint.position, firePoint.rotation);
-        Rigidbody rb = tinyCube.AddComponent<Rigidbody>(); // Add a Rigidbody to make it move
-        rb.useGravity = false; // Disable gravity so the cube moves in a straight line
-        rb.velocity = firePoint.forward * cubeSpeed; // Set the velocity of the tiny cube
+        Rigidbody rb = tinyCube.AddComponent<Rigidbody>();
+        rb.useGravity = false;
+        rb.velocity = firePoint.forward * cubeSpeed;
 
-        // Attach the trail to the tiny cube
         GameObject firedTrail = Instantiate(trailPrefab, tinyCube.transform);
-        firedTrail.transform.localPosition = Vector3.zero; // Ensure the trail starts at the cube's position
+        firedTrail.transform.localPosition = Vector3.zero;
 
-        // Set the trail's lifetime and width to make it short
         TrailRenderer trailRenderer = firedTrail.GetComponent<TrailRenderer>();
         if (trailRenderer != null)
         {
-            trailRenderer.time = trailLifetime; // Set the time the trail stays visible (short trail)
-            trailRenderer.startWidth = trailWidth; // Set the start width of the trail
-            trailRenderer.endWidth = trailWidth; // Set the end width of the trail
-            trailRenderer.minVertexDistance = 0.05f; // Minimum distance between trail points (smaller values create a smoother trail)
+            trailRenderer.time = trailLifetime;
+            trailRenderer.startWidth = trailWidth;
+            trailRenderer.endWidth = trailWidth;
+            trailRenderer.minVertexDistance = 0.05f;
         }
 
-        // Destroy the tiny cube after the specified lifetime (bullet-like behavior)
-        Destroy(tinyCube, trailLifetime); 
+        Destroy(tinyCube, trailLifetime);
     }
 
-    void ApplyRecoil()
-    {
-        // Set the recoiling flag to true, preventing further firing
-        isRecoiling = true;
+  void LateUpdate()
+{
+    // Skip movement if reloading
+    if (isReloading) return;
 
-        // Apply recoil by moving the rectangle (gun) slightly back along the fire direction
-        rectangle.position -= rectangle.forward * recoilAmount; // Move it back along its own forward vector
+    // Cursor-following logic
+    Vector3 mousePosition = Input.mousePosition;
+    mousePosition.z = mainCamera.nearClipPlane + offset.z;
+    Vector3 worldMousePosition = mainCamera.ScreenToWorldPoint(mousePosition);
 
-        // Reset the position of the rectangle (gun) after recoil time
-        StartCoroutine(ResetRecoil());
-    }
+    Vector3 directionToMouse = (worldMousePosition - rectangle.position).normalized;
+    rectangle.rotation = Quaternion.LookRotation(directionToMouse);
+}
 
-    IEnumerator ResetRecoil()
-    {
-        // Wait for the recoil to finish
-        yield return new WaitForSeconds(recoilTime);
+IEnumerator Reload()
+{
+    isReloading = true; // Prevent movement during reload
 
-        // Reset the rectangle position back to its original position
-        rectangle.position = originalPosition;
+    // Trigger the reload animation
+    animator.SetBool("reload", true);
+    animator.SetBool("idle", false);
 
-        // Allow firing again after recoil is finished
-        isRecoiling = false;
-    }
+    Debug.Log("Reloading...");
+    yield return new WaitForSeconds(reloadTime);
+
+    // Reload logic
+    currentAmmo = maxAmmo;
+
+    // Reset animation parameters
+    animator.SetBool("reload", false);
+    animator.SetBool("idle", true);
+
+    isReloading = false; // Re-enable movement after reload
+    Debug.Log("Reload complete!");
+}
+public void SetReloadRotation()
+{
+    rectangle.rotation = Quaternion.Euler(90f, rectangle.rotation.eulerAngles.y, rectangle.rotation.eulerAngles.z);
+}
+
 }
