@@ -7,8 +7,9 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
     private int destroyedFruitsCount = 0;
     private int missedFruitsCount = 0;
-    private int uang = 0;
-    private int score = 0;
+    private int totalMoney = 0;  // Total money
+    private int score = 0;       // Current score
+    private List<int> highScores = new List<int>();  // List to hold the top 5 high scores
 
     public List<CubeClicker> fruits; // Daftar semua buah
     public List<CubeClicker> bombs;
@@ -23,7 +24,6 @@ public class GameManager : MonoBehaviour
     private int bombClickedCount = 0; // Jumlah bom yang telah diklik
     public int maxBombClicks = 1; // Jumlah maksimum bom yang boleh diklik sebelum game over
     public GameObject explosionEffect;
-
 
     void Awake()
     {
@@ -40,6 +40,13 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // Load total money, current score, and high scores from PlayerPrefs
+        totalMoney = PlayerPrefs.GetInt("TotalMoney", 0);  // Load the total money (default to 0)
+        LoadHighScores();  // Load top 5 high scores from PlayerPrefs
+
+        // Reset the current score for the new game
+        score = 0;
+
         // Nonaktifkan semua buah di awal
         foreach (CubeClicker fruit in fruits)
         {
@@ -60,7 +67,6 @@ public class GameManager : MonoBehaviour
         CheckStopCriteria();
     }
 
-    // Fungsi untuk mengecek apakah permainan harus berhenti
     private void CheckStopCriteria()
     {
         if (destroyedFruitsCount >= maxDestroyedFruits || 
@@ -70,7 +76,6 @@ public class GameManager : MonoBehaviour
             StopGame();
         }
     }
-
 
     public bool IsGameOver
     {
@@ -84,8 +89,20 @@ public class GameManager : MonoBehaviour
             isGameOver = true;
             Debug.Log("Permainan selesai!");
 
+            // Check if current score is higher than any of the top 5 high scores
+            if (score > highScores[4])  // Only update if score is higher than the lowest in the top 5
+            {
+                highScores.Add(score);
+                highScores.Sort((a, b) => b.CompareTo(a));  // Sort in descending order
+                if (highScores.Count > 5) highScores.RemoveAt(highScores.Count - 1);  // Keep only top 5 scores
+                SaveHighScores();  // Save the updated high scores to PlayerPrefs
+            }
+
+            // Save the current total money
+            PlayerPrefs.SetInt("TotalMoney", totalMoney);
+
             StopAllCoroutines(); // Hentikan semua coroutine
-            
+
             // Nonaktifkan semua objek yang aktif
             foreach (CubeClicker obj in activeObjects)
             {
@@ -97,13 +114,15 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
     public void IncreaseDestroyedFruitCount()
     {
         destroyedFruitsCount++;
-        AddMoney(10);
-        score += 10; // Menambahkan skor saat buah dihancurkan
-        Debug.Log("Buah yang hancur: " + destroyedFruitsCount + ", Uang: " + uang + " dollar, Score: " + score);
+        AddMoney(10);  // Add 10 to total money when a fruit is destroyed
+        score += 10;   // Add 10 to the score
+        Debug.Log("Buah yang hancur: " + destroyedFruitsCount + ", Uang: " + totalMoney + " dollar, Score: " + score);
+
+        // Save the updated score to PlayerPrefs (Optional if you want to persist current score)
+        PlayerPrefs.SetInt("Score", score);  // Save the current score
     }
 
     public void IncreaseMissedFruitCount()
@@ -117,7 +136,8 @@ public class GameManager : MonoBehaviour
 
     private void AddMoney(int amount)
     {
-        uang += amount;
+        totalMoney += amount;  // Add the new money to the total
+        PlayerPrefs.SetInt("TotalMoney", totalMoney);  // Save the updated total money
     }
 
     public int GetDestroyedFruitsCount()
@@ -127,12 +147,17 @@ public class GameManager : MonoBehaviour
 
     public int GetMoney()
     {
-        return uang;
+        return totalMoney;
     }
 
     public int GetScore() // Fungsi untuk mendapatkan skor
     {
         return score;
+    }
+
+    public List<int> GetHighScores() // Fungsi untuk mendapatkan daftar high scores
+    {
+        return highScores;
     }
 
     public int GetLives()
@@ -141,7 +166,7 @@ public class GameManager : MonoBehaviour
     }
 
     // Coroutine untuk spawn buah dengan logika batas maksimum
-private IEnumerator SpawnObjectsSequentially()
+    private IEnumerator SpawnObjectsSequentially()
     {
         while (!isGameOver)  // Jangan spawn jika game sudah selesai
         {
@@ -231,7 +256,6 @@ private IEnumerator SpawnObjectsSequentially()
         }
     }
 
-
     // Panggil fungsi ini saat objek tidak dihancurkan
     public void ObjectMissed(CubeClicker obj)
     {
@@ -246,4 +270,30 @@ private IEnumerator SpawnObjectsSequentially()
         }
     }
 
+    private void SaveHighScores()
+    {
+        for (int i = 0; i < highScores.Count; i++)
+        {
+            PlayerPrefs.SetInt("HighScore_" + i, highScores[i]);  // Save top 5 scores
+        }
+    }
+
+    private void LoadHighScores()
+    {
+        highScores.Clear();
+        for (int i = 0; i < 5; i++)
+        {
+            int score = PlayerPrefs.GetInt("HighScore_" + i, 0);  // Load top 5 scores
+            highScores.Add(score);
+        }
+    }
+
+    // Optional: Reset game data
+    public void ResetGameData()
+    {
+        PlayerPrefs.DeleteKey("TotalMoney");  // Reset the total money
+        PlayerPrefs.DeleteKey("HighScore");   // Reset the high score
+        totalMoney = 0;
+        highScores.Clear();
+    }
 }
