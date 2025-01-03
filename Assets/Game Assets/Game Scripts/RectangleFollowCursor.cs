@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-
+using TMPro;
 public class RectangleFollowCursor : MonoBehaviour
 {
     [Header("Gun Settings")]
@@ -23,7 +23,7 @@ public class RectangleFollowCursor : MonoBehaviour
     [SerializeField] private float reloadTime = 2f;
 
     [Header("UI Settings")]
-    [SerializeField] private Text ammoDisplay;
+    [SerializeField] public TextMeshProUGUI ammoDisplay;
 
     [Header("Recoil Settings")]
     [SerializeField] private Animator animator; // Animator reference

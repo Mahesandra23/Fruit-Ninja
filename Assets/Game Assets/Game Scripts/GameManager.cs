@@ -127,36 +127,39 @@ public class GameManager : MonoBehaviour
     }
 
    private void StopGame()
+{
+    if (!isGameOver)
     {
-        if (!isGameOver)
+        isGameOver = true;
+        Debug.Log("Permainan selesai!");
+
+        // Save the current total money
+        PlayerPrefs.SetInt("TotalMoney", totalMoney);
+        PlayerPrefs.Save(); // Ensure immediate save to disk
+        Debug.Log("Final TotalMoney saved: " + totalMoney);
+
+        // Check if current score is higher than any of the top 5 high scores
+        if (score > highScores[4])  // Only update if score is higher than the lowest in the top 5
         {
-            isGameOver = true;
-            Debug.Log("Permainan selesai!");
-
-            // Check if current score is higher than any of the top 5 high scores
-            if (score > highScores[4])  // Only update if score is higher than the lowest in the top 5
-            {
-                highScores.Add(score);
-                highScores.Sort((a, b) => b.CompareTo(a));  // Sort in descending order
-                if (highScores.Count > 5) highScores.RemoveAt(highScores.Count - 1);  // Keep only top 5 scores
-                SaveHighScores();  // Save the updated high scores to PlayerPrefs
-            }
-
-            // Save the current total money
-            PlayerPrefs.SetInt("TotalMoney", totalMoney);
-
-            StopAllCoroutines(); // Hentikan semua coroutine
-
-            // Nonaktifkan semua objek yang aktif
-            foreach (CubeClicker obj in activeObjects)
-            {
-                obj.gameObject.SetActive(false);
-            }
-            activeObjects.Clear();
-
-            // Mulai coroutine untuk menunggu sebelum berpindah scene
-            StartCoroutine(WaitAndLoadMainMenu());
+            highScores.Add(score);
+            highScores.Sort((a, b) => b.CompareTo(a));  // Sort in descending order
+            if (highScores.Count > 5) highScores.RemoveAt(highScores.Count - 1);  // Keep only top 5 scores
+            SaveHighScores();  // Save the updated high scores to PlayerPrefs
         }
+
+        StopAllCoroutines(); // Stop all coroutines
+
+        // Deactivate all active objects
+        foreach (CubeClicker obj in activeObjects)
+        {
+            obj.gameObject.SetActive(false);
+        }
+        activeObjects.Clear();
+        Debug.Log("Saved TotalMoney: " + PlayerPrefs.GetInt("TotalMoney"));
+        PlayerPrefs.Save();
+        // Start coroutine to wait before switching scenes
+        StartCoroutine(WaitAndLoadMainMenu());
+    }
     }
 
     private IEnumerator WaitAndLoadMainMenu()
@@ -188,11 +191,13 @@ public class GameManager : MonoBehaviour
     }
 
     public void AddMoney(int amount)
-    {
-        totalMoney += amount;
-        if (totalMoney < 0) totalMoney = 0; // Prevent negative money
-        PlayerPrefs.SetInt("TotalMoney", totalMoney);
-    }
+{
+    totalMoney += amount;
+    if (totalMoney < 0) totalMoney = 0; // Prevent negative money
+    PlayerPrefs.SetInt("TotalMoney", totalMoney); // Save updated money immediately
+    PlayerPrefs.Save(); // Force save to disk
+    Debug.Log("TotalMoney saved: " + totalMoney);
+}
 
     public int GetDestroyedFruitsCount()
     {
