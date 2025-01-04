@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 3cdf935ed63a44744a187719398b3e05
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - playButton: {instanceID: 0}
+  - difficultyPanel: {instanceID: 0}
+  - mainPanel: {instanceID: 0}
+  - weaponSelectionPanel: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
