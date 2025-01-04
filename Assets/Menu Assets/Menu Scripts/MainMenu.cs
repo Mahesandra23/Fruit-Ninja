@@ -18,8 +18,6 @@ public class MainMenu : MonoBehaviour
 
     void Start()
     {
-        PlayerPrefs.SetInt("TotalMoney",100000000);
-        PlayerPrefs.Save();
         // Hide the difficulty and weapon selection panels initially
         difficultyPanel.SetActive(false);
         weaponSelectionPanel.SetActive(false);
