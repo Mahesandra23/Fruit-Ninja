@@ -28,6 +28,8 @@ public class GameManager : MonoBehaviour
     public GameObject explosionEffect;
     public AudioClip explosionSound; // Add reference for the explosion sound clip
     private AudioSource audioSource;  // Reference to the AudioSource
+    public List<GameObject> weapons; // Assign all weapon objects in the Inspector
+
 
      void Awake()
     {
@@ -41,6 +43,7 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
         audioSource = GetComponent<AudioSource>();
+        ActivateSelectedWeapon();
     }
 
     void OnEnable()
@@ -70,8 +73,10 @@ public class GameManager : MonoBehaviour
         totalMoney = PlayerPrefs.GetInt("TotalMoney", 0);
         LoadHighScores();  // Load saved high scores
         score = 0;  // Reset the score
-        // Reset any other game-related elements
+        
+         // Activate the weapon
     }
+
 
     public void ResetGameState()
     {
@@ -363,5 +368,27 @@ public class GameManager : MonoBehaviour
         highScores.Clear();
     }
 
+    private void ActivateSelectedWeapon()
+    {
+        // Ambil senjata yang dipilih dari PlayerPrefs
+        string selectedWeapon = PlayerPrefs.GetString("SelectedWeapon", "DefaultWeapon");
+
+        // Nonaktifkan semua senjata terlebih dahulu
+        foreach (GameObject weapon in weapons)
+        {
+            weapon.SetActive(false);
+        }
+
+        // Aktifkan senjata yang sesuai
+        foreach (GameObject weapon in weapons)
+        {
+            if (weapon.name == selectedWeapon)
+            {
+                weapon.SetActive(true);
+                Debug.Log($"Weapon {selectedWeapon} activated!");
+                break;
+            }
+        }
+    }
     
 }

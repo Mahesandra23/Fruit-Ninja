@@ -2,10 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using System.Linq;
 
 public class WeaponSelectionMenu : MonoBehaviour
 {
     public GameObject startButton; // Assign the Start button in the Inspector
+    public List<GameObject> weapons; // List of weapon GameObjects
+    private string selectedWeapon;
 
     void Start()
     {
@@ -18,16 +22,54 @@ public class WeaponSelectionMenu : MonoBehaviour
         {
             Debug.LogError("Start button tidak diatur di Inspector!");
         }
+
+        DeactivateAllWeapons(); // Pastikan semua senjata dinonaktifkan saat awal
     }
 
-    public void SelectWeapon(string weapon)
+    public void SelectWeapon(string weaponName)
     {
-        // Menyimpan senjata yang dipilih
-        PlayerPrefs.SetString("SelectedWeapon", weapon);
-        Debug.Log("Weapon Selected: " + weapon);
+        // Simpan senjata yang dipilih
+        PlayerPrefs.SetString("SelectedWeapon", weaponName);
+        Debug.Log("Weapon Selected: " + weaponName);
+
+        // Aktifkan senjata yang sesuai
+        ActivateWeapon(weaponName);
 
         // Tampilkan tombol Start
         ShowStartButton();
+    }
+
+    private void ActivateWeapon(string weaponName)
+    {
+        Debug.Log("Attempting to activate weapon: " + weaponName);
+        // Nonaktifkan semua senjata
+        foreach (var weapon in weapons)
+        {
+            Debug.Log("Disabling weapon: " + weapon.name);
+            weapon.SetActive(false);
+        }
+
+        // Aktifkan senjata yang dipilih
+        GameObject selectedWeapon = weapons.FirstOrDefault(w => w.name == weaponName);
+        if (selectedWeapon != null)
+        {
+            Debug.Log("Activating weapon: " + selectedWeapon.name);
+            selectedWeapon.SetActive(true);  // Aktifkan senjata yang dipilih
+        }
+        else
+        {
+            Debug.LogWarning("Weapon not found: " + weaponName);
+        }
+    }
+
+
+
+    private void DeactivateAllWeapons()
+    {
+        foreach (GameObject weapon in weapons)
+        {
+            weapon.SetActive(false); // Nonaktifkan semua senjata
+        }
     }
 
     public void ShowStartButton()
