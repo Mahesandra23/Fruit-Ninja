@@ -30,6 +30,9 @@ public class GameManager : MonoBehaviour
     private AudioSource audioSource;  // Reference to the AudioSource
     public List<GameObject> weapons; // Assign all weapon objects in the Inspector
 
+    public int[] scoreperfruit;
+    public int [] moneyperfruit;
+
 
      void Awake()
     {
@@ -175,15 +178,30 @@ public class GameManager : MonoBehaviour
     }
 
 
-    public void IncreaseDestroyedFruitCount()
+    public void IncreaseDestroyedFruitCount(CubeClicker fruit)
     {
-        destroyedFruitsCount++;
-        AddMoney(10);  // Add 10 to total money when a fruit is destroyed
-        score += 10;   // Add 10 to the score
-        Debug.Log("Buah yang hancur: " + destroyedFruitsCount + ", Uang: " + totalMoney + " dollar, Score: " + score);
+        // Get the index of the destroyed fruit in the fruits list
+        int fruitIndex = fruits.IndexOf(fruit);
 
-        // Save the updated score to PlayerPrefs (Optional if you want to persist current score)
-        PlayerPrefs.SetInt("Score", score);  // Save the current score
+        if (fruitIndex >= 0 && fruitIndex < scoreperfruit.Length)
+        {
+            // Add the corresponding score and money from the arrays
+            int fruitScore = scoreperfruit[fruitIndex];
+            int fruitMoney = moneyperfruit[fruitIndex];  // Get the corresponding money for this fruit
+
+            score += fruitScore;  // Add score
+            totalMoney += fruitMoney;  // Add money equivalent to the fruit
+
+            // Log the result
+            Debug.Log("Buah yang hancur: " + destroyedFruitsCount + ", Uang: " + totalMoney + " dollar, Score: " + score);
+
+            // Save the updated score and money
+            PlayerPrefs.SetInt("Score", score);
+            PlayerPrefs.SetInt("TotalMoney", totalMoney);
+            PlayerPrefs.Save();
+        }
+
+        destroyedFruitsCount++;
     }
 
     public void IncreaseMissedFruitCount()

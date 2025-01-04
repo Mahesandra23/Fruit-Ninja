@@ -80,7 +80,7 @@
                 GameObject explosion = Instantiate(fruitExplosionPrefab, transform.position, Quaternion.identity);
                 Destroy(explosion, 2f);
 
-                GameManager.instance.IncreaseDestroyedFruitCount();
+                GameManager.instance.IncreaseDestroyedFruitCount(this);
 
                 // Beritahu GameManager bahwa buah ini sudah dihancurkan
                 GameManager.instance.ObjectDestroyed(this);

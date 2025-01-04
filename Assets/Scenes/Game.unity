@@ -274,6 +274,14 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5432244029346173630, guid: 8ad2c36482cec574fb5e8adb1f9ef122, type: 3}
+      propertyPath: maxAmmo
+      value: 400
+      objectReference: {fileID: 0}
+    - target: {fileID: 5432244029346173630, guid: 8ad2c36482cec574fb5e8adb1f9ef122, type: 3}
+      propertyPath: cubeSpeed
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 5432244029346173630, guid: 8ad2c36482cec574fb5e8adb1f9ef122, type: 3}
       propertyPath: fireSound
       value: 
       objectReference: {fileID: 8300000, guid: b34e2f0e724b7a04dbc16814254d2a20, type: 3}
@@ -293,6 +301,10 @@ PrefabInstance:
       propertyPath: reloadSound
       value: 
       objectReference: {fileID: 8300000, guid: 3de6cba584df752499e72f83800e5499, type: 3}
+    - target: {fileID: 5432244029346173630, guid: 8ad2c36482cec574fb5e8adb1f9ef122, type: 3}
+      propertyPath: trailLifetime
+      value: 0.2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -493,6 +505,7 @@ MonoBehaviour:
   - {fileID: 1144851775}
   - {fileID: 1525964006}
   - {fileID: 231491687}
+  - {fileID: 642752485}
   bombs:
   - {fileID: 778371628}
   - {fileID: 778371628}
@@ -511,6 +524,8 @@ MonoBehaviour:
   - {fileID: 200466088}
   - {fileID: 557881106}
   - {fileID: 109667661}
+  scoreperfruit: 0a0000000a00000014000000140000001e000000
+  moneyperfruit: 6400000064000000c8000000c80000002c010000
 --- !u!82 &160814731
 AudioSource:
   m_ObjectHideFlags: 0
@@ -647,6 +662,14 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2502883762547268900, guid: c696df78bfb4d1e4a8e7296a0fad1c7f, type: 3}
+      propertyPath: maxAmmo
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 2502883762547268900, guid: c696df78bfb4d1e4a8e7296a0fad1c7f, type: 3}
+      propertyPath: cubeSpeed
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 2502883762547268900, guid: c696df78bfb4d1e4a8e7296a0fad1c7f, type: 3}
       propertyPath: fireSound
       value: 
       objectReference: {fileID: 8300000, guid: b34e2f0e724b7a04dbc16814254d2a20, type: 3}
@@ -655,6 +678,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 963194227}
     - target: {fileID: 2502883762547268900, guid: c696df78bfb4d1e4a8e7296a0fad1c7f, type: 3}
+      propertyPath: reloadTime
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2502883762547268900, guid: c696df78bfb4d1e4a8e7296a0fad1c7f, type: 3}
       propertyPath: ammoDisplay
       value: 
       objectReference: {fileID: 158742931}
@@ -662,6 +689,10 @@ PrefabInstance:
       propertyPath: reloadSound
       value: 
       objectReference: {fileID: 8300000, guid: 3de6cba584df752499e72f83800e5499, type: 3}
+    - target: {fileID: 2502883762547268900, guid: c696df78bfb4d1e4a8e7296a0fad1c7f, type: 3}
+      propertyPath: trailLifetime
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 7159219684302671969, guid: c696df78bfb4d1e4a8e7296a0fad1c7f, type: 3}
       propertyPath: m_Name
       value: Bennelli_M4
@@ -1173,8 +1204,8 @@ MonoBehaviour:
   trailLifetime: 0.2
   trailWidth: 0.1
   fireCooldown: 0.5
-  maxAmmo: 6
-  reloadTime: 2
+  maxAmmo: 30
+  reloadTime: 1
   ammoDisplay: {fileID: 158742931}
   animator: {fileID: 557881111}
   fireSound: {fileID: 8300000, guid: b34e2f0e724b7a04dbc16814254d2a20, type: 3}
@@ -1319,7 +1350,7 @@ MonoBehaviour:
   spawnHeight: -30
   fruitExplosionPrefab: {fileID: 6032097152945147227, guid: 0def758253dc3ce4cac124243417a593, type: 3}
   isBomb: 0
-  maxClicks: 2
+  maxClicks: 3
   colorChangeDuration: 0.1
   smallJumpHeight: 0.8
 --- !u!65 &642752486
@@ -2153,12 +2184,12 @@ MonoBehaviour:
   tinyCubePrefab: {fileID: 3375924970082564092, guid: d3b03c9a0dd3e724f96c420ad6a27203, type: 3}
   trailPrefab: {fileID: 5804204471009216758, guid: 6311f153991b46a4e9d8e4016eccbcc3, type: 3}
   firePoint: {fileID: 177420454}
-  cubeSpeed: 10
-  trailLifetime: 0.5
+  cubeSpeed: 1000
+  trailLifetime: 0.2
   trailWidth: 0.1
   fireCooldown: 0.5
-  maxAmmo: 6
-  reloadTime: 2
+  maxAmmo: 8
+  reloadTime: 1
   ammoDisplay: {fileID: 158742931}
   animator: {fileID: 1196463049}
   fireSound: {fileID: 8300000, guid: b34e2f0e724b7a04dbc16814254d2a20, type: 3}
@@ -2202,6 +2233,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6062399587856396881, guid: 0d75d0ffbe756c444b13b50417c95da5, type: 3}
+      propertyPath: cubeSpeed
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6062399587856396881, guid: 0d75d0ffbe756c444b13b50417c95da5, type: 3}
       propertyPath: fireSound
       value: 
       objectReference: {fileID: 8300000, guid: b34e2f0e724b7a04dbc16814254d2a20, type: 3}
@@ -2221,6 +2256,10 @@ PrefabInstance:
       propertyPath: reloadSound
       value: 
       objectReference: {fileID: 8300000, guid: 3de6cba584df752499e72f83800e5499, type: 3}
+    - target: {fileID: 6062399587856396881, guid: 0d75d0ffbe756c444b13b50417c95da5, type: 3}
+      propertyPath: trailLifetime
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 6300113549971301941, guid: 0d75d0ffbe756c444b13b50417c95da5, type: 3}
       propertyPath: m_Name
       value: M1911
