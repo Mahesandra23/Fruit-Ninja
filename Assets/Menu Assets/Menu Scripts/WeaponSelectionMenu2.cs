@@ -7,6 +7,7 @@ using TMPro;
 public class WeaponSelectionMenu2 : MonoBehaviour
 {
     public TMP_Text currencyText; // Text to display the current currency
+    public TMP_Text[] Price;
     public Button[] weaponButtons; // Assign buttons for each weapon in the Inspector
     public int[] weaponCosts; // Costs of each weapon (must match weaponButtons length)
     public int money;
@@ -38,24 +39,31 @@ public class WeaponSelectionMenu2 : MonoBehaviour
     }
 
     public void SelectWeapon(int weaponIndex)
+{
+    if (IsWeaponUnlocked(weaponIndex))
     {
-        if (IsWeaponUnlocked(weaponIndex))
-        {
-            PlayerPrefs.SetString("SelectedWeapon", "Weapon" + weaponIndex);
-            Debug.Log("Weapon Selected: Weapon" + weaponIndex);
-        }
-        else if (money >= weaponCosts[weaponIndex])
-        {
-            UnlockWeapon(weaponIndex);
-            PlayerPrefs.SetInt("TotalMoney",money - weaponCosts[weaponIndex]);
-            money -= weaponCosts[weaponIndex];
-            PlayerPrefs.Save();
-        }
-        else
-        {
-            Debug.Log("Not enough currency to unlock this weapon.");
-        }
+        // If the weapon is already unlocked, just select it
+        PlayerPrefs.SetString("SelectedWeapon", "Weapon" + weaponIndex);
+        Debug.Log("Weapon Selected: Weapon" + weaponIndex);
     }
+    else if (money >= weaponCosts[weaponIndex])
+    {
+        // First, deduct money for the weapon
+        money -= weaponCosts[weaponIndex];
+        SaveMoney(); // Save the updated money
+
+        // Now, unlock the weapon
+        UnlockWeapon(weaponIndex);
+
+        // After unlocking, mark the weapon as unlocked and update the UI
+        PlayerPrefs.SetInt("WeaponUnlocked" + weaponIndex, 1); // Mark the weapon as unlocked
+        Debug.Log("Weapon unlocked: Weapon" + weaponIndex);
+    }
+    else
+    {
+        Debug.Log("Not enough currency to unlock this weapon.");
+    }
+}
 
     void UnlockWeapon(int weaponIndex)
     {
@@ -72,14 +80,19 @@ public class WeaponSelectionMenu2 : MonoBehaviour
     }
 
     void UpdateUI()
-    {
-        currencyText.text = money + "$"; // Update the displayed amount of money
+{
+    currencyText.text = money + "$"; // Update the displayed amount of money
 
-        for (int i = 0; i < weaponButtons.Length; i++)
+    for (int i = 0; i < weaponButtons.Length; i++)
+    {
+        bool unlocked = IsWeaponUnlocked(i);
+        weaponButtons[i].interactable = unlocked || money >= weaponCosts[i];
+
+        // Update the price text for each weapon
+        if (i < Price.Length) // Make sure we don't go out of bounds
         {
-            bool unlocked = IsWeaponUnlocked(i);
-            weaponButtons[i].interactable = unlocked || money >= weaponCosts[i];
-            // Optional: Update button visuals (e.g., disable or add lock icon)
+            Price[i].text = weaponCosts[i] + "$"; // Set the price text for the weapon
         }
     }
+}
 }
