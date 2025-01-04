@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-
 public class MainMenu : MonoBehaviour
 {
     public Button playButton;
@@ -19,57 +18,81 @@ public class MainMenu : MonoBehaviour
 
     void Start()
     {
+        // Hide the difficulty and weapon selection panels initially
         difficultyPanel.SetActive(false);
         weaponSelectionPanel.SetActive(false);
+
+        // Set listeners for the buttons
         playButton.onClick.AddListener(ShowDifficultyOptions);
+        easyButton.onClick.AddListener(() => StartGameWithDifficulty("Easy"));
+        hardButton.onClick.AddListener(() => StartGameWithDifficulty("Hard"));
+        backButton.onClick.AddListener(BackToMainMenu);
+
+        // Load previously selected difficulty (if any)
         string difficulty = PlayerPrefs.GetString("SelectedDifficulty", "Easy");
         if (difficulty == "Easy")
         {
-            // Set easy mode parameters
+            PlayerPrefs.SetString("SelectedDifficulty", "Easy");
         }
         else if (difficulty == "Hard")
         {
-            // Set hard mode parameters
+            PlayerPrefs.SetString("SelectedDifficulty", "Hard");
         }
+        PlayerPrefs.Save(); // Save the value immediately
     }
 
     void ShowDifficultyOptions()
     {
+        // Hide main menu, show difficulty selection
         mainPanel.SetActive(false);
         difficultyPanel.SetActive(true);
     }
 
     void StartGameWithDifficulty(string difficulty)
     {
+        // Save the selected difficulty
         PlayerPrefs.SetString("SelectedDifficulty", difficulty);
-        startButton.onClick.AddListener(ShowWeaponSelection);
+        PlayerPrefs.Save();  // Save the value immediately
+        ShowWeaponSelection();
     }
 
     public void ShowWeaponSelection()
     {
+        // Hide difficulty panel, show weapon selection
         difficultyPanel.SetActive(false);
         weaponSelectionPanel.SetActive(true);
     }
 
     public void SelectWeapon(string weapon)
     {
+        // Save the selected weapon
         PlayerPrefs.SetString("SelectedWeapon", weapon);
         StartGame();
     }
 
     public void StartGame()
-    { 
-        string gameSceneName = "Game";
+    {
+        // Load the game scene
         SceneManager.LoadScene(gameSceneName);
     }
 
     public void LoadMainMenu()
     {
+        // Load the main menu scene
         SceneManager.LoadScene("MainMenu");
     }
 
     public void QuitGame()
     {
+        // Quit the application
         Application.Quit();
+    }
+
+    void BackToMainMenu()
+    {
+        // Switch back to the main menu panel if needed
+        difficultyPanel.SetActive(false);
+        weaponSelectionPanel.SetActive(false);
+        mainPanel.SetActive(true);
     }
 }

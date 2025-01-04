@@ -73,8 +73,8 @@ public class GameManager : MonoBehaviour
         totalMoney = PlayerPrefs.GetInt("TotalMoney", 0);
         LoadHighScores();  // Load saved high scores
         score = 0;  // Reset the score
-        
-         // Activate the weapon
+        // Reset any other game-related elements
+        checkdifficulty();
     }
 
 
@@ -388,6 +388,26 @@ public class GameManager : MonoBehaviour
                 Debug.Log($"Weapon {selectedWeapon} activated!");
                 break;
             }
+        }
+    }
+
+    public void checkdifficulty()
+    {
+        // Retrieve the difficulty from PlayerPrefs (using the correct key "SelectedDifficulty")
+        string difficulty = PlayerPrefs.GetString("SelectedDifficulty", "Easy");  // Default to "Easy" if not set
+
+        // Log the current difficulty for debugging
+        if (difficulty == "Easy")
+        {
+            Debug.Log("Difficulty: Easy");
+            spawnDelay = 2f;
+            maxMissedFruits = 10;
+        }
+        else if (difficulty == "Hard")
+        {
+            Debug.Log("Difficulty: Hard");
+            spawnDelay = 1f;
+            maxMissedFruits = 5;
         }
     }
     

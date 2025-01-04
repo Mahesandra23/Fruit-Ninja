@@ -2506,7 +2506,7 @@ MonoBehaviour:
   startButton: {fileID: 696217289}
   easyButton: {fileID: 709360958}
   hardButton: {fileID: 100150762}
-  backButton: {fileID: 0}
+  backButton: {fileID: 911768707}
   difficultyPanel: {fileID: 872779427}
   mainPanel: {fileID: 14238593}
   weaponSelectionPanel: {fileID: 2019170879}
