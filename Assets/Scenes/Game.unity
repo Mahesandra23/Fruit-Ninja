@@ -500,7 +500,7 @@ MonoBehaviour:
   - {fileID: 778371628}
   spawnDelay: 1.3
   maxActiveFruits: 10
-  maxDestroyedFruits: 50
+  maxDestroyedFruits: 100000
   maxMissedFruits: 5
   maxBombClicks: 1
   explosionEffect: {fileID: 4290133186687390923, guid: 9b56b3585c175cd41884d45200cd1c44, type: 3}

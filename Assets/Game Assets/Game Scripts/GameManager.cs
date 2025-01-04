@@ -15,12 +15,12 @@ public class GameManager : MonoBehaviour
 
     public List<CubeClicker> fruits; // Daftar semua buah
     public List<CubeClicker> bombs;
-    public float spawnDelay = 2f; // Jeda antar buah
-    public int maxActiveFruits = 5; // Jumlah maksimum buah yang aktif sekaligus
+    public float spawnDelay = 1.3f; // Jeda antar buah
+    public int maxActiveFruits = 10; // Jumlah maksimum buah yang aktif sekaligus
 
     private List<CubeClicker> activeObjects = new List<CubeClicker>();
     private bool isGameOver = false; // Flag untuk memeriksa status game
-    public int maxDestroyedFruits = 5; // Batas jumlah buah yang dihancurkan
+    public int maxDestroyedFruits = 100000; // Batas jumlah buah yang dihancurkan
     public int maxMissedFruits = 3; // Batas jumlah buah yang tidak dihancurkan
 
     private int bombClickedCount = 0; // Jumlah bom yang telah diklik

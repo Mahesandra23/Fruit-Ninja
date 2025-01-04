@@ -6,7 +6,7 @@
         private Renderer fruitRenderer;
         public Camera mainCamera;
         public float jumpHeight = 30f;
-        public float jumpSpeed = 2f;
+        public float jumpSpeed = 0.8f;
         public float moveSpeed = 1f;
         public float horizontalSpeed = 0.5f; // Kecepatan pergerakan horizontal
         public float distanceFromCamera = 6f;
@@ -17,8 +17,8 @@
         public bool isBomb = false; // Menentukan apakah objek ini adalah bom
 
         public int maxClicks = 2; // Menentukan jumlah klik untuk meledakkan buah
-        public float colorChangeDuration = 0.2f; // Durasi warna berubah menjadi merah
-        public float smallJumpHeight = 5f; // Tinggi lompatan kecil saat diklik
+        public float colorChangeDuration = 0.1f; // Durasi warna berubah menjadi merah
+        public float smallJumpHeight = 0.8f; // Tinggi lompatan kecil saat diklik
 
         private Vector3 startPosition;
         private bool isJumping = false;
